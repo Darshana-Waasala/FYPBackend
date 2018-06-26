@@ -233,13 +233,13 @@ def matchKeypointsBFSIFT(description: numpy.ndarray, segments: numpy.ndarray) ->
     # ratio test as per Lowe's paper
     count = 0
     bestMatches = {}  # dictionary to hold the cluster matches
-    minimumDistance=100000
+    minimumDistance = 100000
     for i, (m, n) in enumerate(matches):
         '''n has the higher value than m (always - did not encounter other way round)'''
         # if (n.distance != 0):
         # if m.distance < 0.75 * n.distance:
-        if abs(n.distance-m.distance)<minimumDistance:
-            minimumDistance =abs(n.distance-m.distance)
+        if abs(n.distance - m.distance) < minimumDistance:
+            minimumDistance = abs(n.distance - m.distance)
         if abs(n.distance - m.distance) < 15:
             count += 1
             # print('distance : ', (m.distance / n.distance), m.trainIdx, n.trainIdx)
@@ -281,8 +281,7 @@ def matchKeypointsBFSIFT(description: numpy.ndarray, segments: numpy.ndarray) ->
     return bestMatches
 
 
-def matchKeypointsBFORB(image:numpy.ndarray,segments:numpy.ndarray)->list:
-
+def matchKeypointsBFORB(image: numpy.ndarray, segments: numpy.ndarray) -> list:
     # Initiate ORB detector
     orb = cv2.ORB_create()
 
@@ -298,23 +297,50 @@ def matchKeypointsBFORB(image:numpy.ndarray,segments:numpy.ndarray)->list:
     # Match descriptors
     # matches = bf.match(des, des)
     matches = bf.match(splitedDescriptions[0], splitedDescriptions[1])
-    print('total number of matches : ',len(matches))
+    print('total number of matches : ', len(matches))
 
     # Sort them in the order of their distance
     matches = sorted(matches, key=lambda x: x.distance)
 
     for match in matches:
-        print('match:',match, '| match distance:',match.distance, ' | match trainIdx:',
+        print('match:', match, '| match distance:', match.distance, ' | match trainIdx:',
               match.trainIdx, ' | match queryIdx', match.queryIdx)
 
 
-
-def getMostAppropriteSegementNumber(image:numpy.ndarray)->int:
+def getMostAppropriteSegementNumber(image: numpy.ndarray) -> int:
     """shape is in the order ROWS,COLS,CHANNELS -> (y,x,c)"""
-    y,x,c = image.shape
-    totalSegments = int(round((x*y)/(50*50)))
-    print('total segements : ',totalSegments)
+    y, x, c = image.shape
+    totalSegments = int(round((x * y) / (50 * 50)))
+    print('total segements : ', totalSegments)
     return totalSegments
+
+
+def testingMethod(img: numpy.ndarray):
+    greyImg = cv2.cvtColor(src=img, code=cv2.COLOR_RGB2GRAY)
+    hog = HOGDescriptor((8, 16), (8, 8), (8, 8), (8, 8),
+                        9)  # 16x32 -> col,row -> x,y
+    hogDescriptors = []
+    for i in range(0, 1000, 4):
+        roi = greyImg[i:i + 16, i:i + 8]
+        hogDescriptors.append(hog.compute(img=roi))
+
+    # create bf for knn matching
+    bf = cv2.BFMatcher()
+    description = numpy.array(hogDescriptors)  # convert to numpy.ndarray
+    matches = bf.knnMatch(description, description, k=2)
+
+    minimumDistance = 10000
+    for i, (m, n) in enumerate(matches):
+        if minimumDistance > n.distance- m.distance:
+            minimumDistance = n.distance- m.distance
+
+        print(' m query index = ', m.queryIdx, '| m train index = ', m.trainIdx,
+              '| n query index = ', n.queryIdx, '| n train index = ', n.trainIdx,
+              '| n distance - ', n.distance, '| m distance - ', m.distance, ' | distance : ', n.distance - m.distance)
+
+    print('total matches', len(matches))
+    print('minimum matches :',minimumDistance)
+
 
 """ ################################## execution start position ############################################## """
 start_time = time.time()
@@ -326,14 +352,14 @@ start_time = time.time()
 # img = (cv2.imread('/home/waasala/workspace/gimp/DSC_0095_01_cloned.jpg'))
 # img = cv2.imread('/home/waasala/workspace/gimp/gardenMultipleClone.jpg')
 img = cv2.imread('/home/waasala/workspace/gimp/colorFlower_rotated.jpeg')
-
-keys, des = getSIFTKeyDes(image=img)
+testingMethod(img=img)
+"""keys, des = getSIFTKeyDes(image=img)
 segments = getImageSegments(rgbImage=img.copy(), segments=getMostAppropriteSegementNumber(image=img), sigma=5)
 # matchKeypointsBFORB(image=img,segments=segments)
 # bestMatches = matchKeypointsFlannSIFT(des, segments)
 bestMatches = matchKeypointsBFSIFT(des, segments)
 cv2.imshow('final image', resizeImage(img))
-# drawMatchedClusters(image=img, matchedClusters=bestMatches, segments=segments)
+# drawMatchedClusters(image=img, matchedClusters=bestMatches, segments=segments)"""
 
 print('time of execution - ', time.time() - start_time)
 

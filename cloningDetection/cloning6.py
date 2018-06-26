@@ -3,6 +3,7 @@ cloning is detected using - SIFT keys, FLANN|BF for matching"""
 
 # import the necessary packages
 import threading
+from ctypes import c_void_p
 
 from cv2.cv2 import HOGDescriptor
 from skimage import img_as_float
@@ -29,6 +30,12 @@ class KeyDes:
         """this act as the constructor"""
         self.keypoint = keypoint
         self.descriptor = descriptor
+
+
+class SegVal:
+    """this class is used to store HOG descriptors in a dictionary with duplicate key values"""
+    def __init__(self,segmentValue):
+        self.segmentValue = segmentValue
 
 
 def getImageSegments(rgbImage: numpy.uint8, segments: int, sigma: int) -> numpy.ndarray:
@@ -96,7 +103,7 @@ def drawSURFKeysOnly(image: numpy.uint8) -> None:
     return None
 
 
-def clusterKeypoints(keypoints: list, descriptors: numpy.ndarray, segments: numpy.ndarray,keysPerCluster = 1) -> dict:
+def clusterKeypoints(keypoints: list, descriptors: numpy.ndarray, segments: numpy.ndarray, keysPerCluster=1) -> dict:
     """will add the keys to a dictionary only of the segment have key points then the required threshold"""
     dictionary = {}
     for keypoint, descriptor in zip(keypoints, descriptors):  # index is starting from ZERO
@@ -124,31 +131,188 @@ def getDescriptorListForSegment(segmentValue: int, dictionary: dict) -> numpy.nd
     return numpy.float32(descriptors)
 
 
-def matchWithHOGDescriptors(noSIFTkeySegValList: list, segments: numpy.ndarray, image: numpy.ndarray) -> dict:
+def matchWithHOGDescriptors(noSIFTkeySegValList: list, segments: numpy.ndarray, imageColor: numpy.ndarray,
+                            threshold=15) -> dict:
     """this will return array of numpy.ndarray of matched areas"""
+    greyImage = cv2.cvtColor(src=imageColor, code=cv2.COLOR_RGB2GRAY)
 
     '''prepare the HOG descriptor'''
-    hog = HOGDescriptor((8, 8), (8, 8), (8, 8), (8, 8), 9)  # 16x32 -> col,row -> x,y
+    detection_window_col = 8
+    detection_window_row = 8
+    hog = HOGDescriptor((detection_window_col, detection_window_row), (8, 8), (8, 8), (8, 8),
+                        9)  # 16x32 -> col,row -> x,y
+    ''''preparing a dictionary to hold the descriptors of all segments'''
+    dictionary = {}
+    '''dictionary to hold the matched patches with key->segmentValue | value->array_of_matched_segments'''
+    matchedSegments = {}
+
+    min_height = 10000  # for testing purposes
+    min_width = 10000  # for testing purposes
 
     '''assuming cloned area is not in the same segment - 
     iterating over the list of segment values those without enough keys detected'''
     for segVal in noSIFTkeySegValList:
-        rows,cols = numpy.where(segments == segVal)
+        rows, cols = numpy.where(segments == segVal)
 
-        '''check if the area of interest is more then the kernel size of HOG descriptor'''
-        if len(rows) > 8 & len(cols) > 8:
-            for x in range(0,len(rows),4):
+        '''initializing a dictionary to hold hog descriptors for the segment'''
+        temp_h_o_g_descriptors = []
+
+        if max(rows) - min(rows) < min_height:  # for testing purposes
+            min_height = max(rows) - min(rows)  # for testing purposes
+        if max(cols) - min(cols) < min_width:  # for testing purposes
+            min_width = max(cols) - min(cols)  # for testing purposes
+
+        '''checking if the segment is large enough to run the window'''
+        if ((max(rows) - min(rows)) > detection_window_row) & ((max(cols) - min(cols)) > detection_window_col):
+
+            '''iterating the HOG sliding window'''
+            for y in range(min(rows), max(rows) - detection_window_row, 4):
+                for x in range(min(cols), max(cols) - detection_window_col, 4):
+                    roi = greyImage[y:y + detection_window_row, x:x + detection_window_col]  # [y1:y2, x1:x2]
+
+                    '''check if the area of interest is more then the kernel size of HOG descriptor'''
+                    temp_h_o_g_descriptors.append(hog.compute(img=roi))
+
+            '''after iterating the HOG kernel over the segment, add the descriptors to the dictionary'''
+            dictionary[segVal] = temp_h_o_g_descriptors
+    print('segments with proper size for HOG : ', len(dictionary))
+    print('minimum height of roi -', min_height, ' | minimum width of roi -', min_width)
+
+    '''after iterating over all the segments that are without the required amount of key points,
+    compare between the descriptors of each segment obtained
+    here in the dictionary key->segment_value | value->2D_array_of_descriptors'''
+    minimum_distance = 10000  # for testing purposes
+    for index1, keyValue1 in enumerate(dictionary):
+        for index2, keyValue2 in enumerate(dictionary):
+            if index2 > index1:
+
+                '''iterating over the each descriptor of the segment'''
+                for descriptor1 in dictionary[keyValue1]:
+                    for descriptor2 in dictionary[keyValue2]:
+                        distance = scipy.spatial.distance.euclidean(descriptor1, descriptor2)
+
+                        if distance < minimum_distance:  # for testing purposes
+                            minimum_distance = distance  # for testing purposes
+
+                        if distance < threshold:
+
+                            '''fill into the return array of matches'''
+                            if keyValue1 in matchedSegments:
+                                matchedSegments[keyValue1].append(keyValue2)
+                            elif keyValue2 in matchedSegments:
+                                matchedSegments[keyValue2].append(keyValue1)
+                            else:
+                                matchedSegments[keyValue1] = [keyValue2]
+
+    print('the minimum distance rechorded : ', minimum_distance)
+    return matchedSegments
 
 
+def matchWithHOGKNN(noSIFTkeySegValList: list, segments: numpy.ndarray, imageColor: numpy.ndarray,
+                            threshold=0.004) -> dict:
+    """this will return array of numpy.ndarray of matched areas"""
+    greyImage = cv2.cvtColor(src=imageColor, code=cv2.COLOR_RGB2GRAY)
 
-    rows1, cols1 = numpy.where(segments == minThreshKeyPair.y1)
-    rows2, cols2 = numpy.where(segments == minThreshKeyPair.y2)
+    '''prepare the HOG descriptor'''
+    # detection_window_col = 8
+    # detection_window_row = 16
+    # hog = HOGDescriptor((detection_window_col, detection_window_row), (8, 8), (8, 8), (8, 8),
+    #                     9)  # 16x32 -> col,row -> x,y
+    # detection_window_col = 16
+    # detection_window_row = 32
+    # hog = HOGDescriptor((detection_window_col, detection_window_row), (16, 16), (8, 8), (8, 8),
+    #                     9)  # 16x32 -> col,row -> x,y
 
-    area1 = image[min(rows1):max(rows1), min(cols1):max(cols1)]  # [y1:y2, x1:x2]
-    area2 = image[min(rows2):max(rows2), min(cols2):max(cols2)]  # [y1:y2, x1:x2]
+    detection_window_col = 32
+    detection_window_row = 32
+    hog = HOGDescriptor((detection_window_col, detection_window_row), (16, 16), (8, 8), (8, 8),
+                        9)  # 16x32 -> col,row -> x,y
+    ''''preparing a dictionary to hold the descriptors of all segments'''
+    dictionary = {}
+    '''dictionary to hold the matched patches with key->segmentValue | value->array_of_matched_segments'''
+    matchedSegments = {}
 
-    suspectArea = {'area1': area1, 'area2': area2}
-    return suspectArea
+    min_height = 10000  # for testing purposes
+    min_width = 10000  # for testing purposes
+
+    '''assuming cloned area is not in the same segment - 
+    iterating over the list of segment values those without enough keys detected'''
+    for segVal in noSIFTkeySegValList:
+        rows, cols = numpy.where(segments == segVal)
+
+        if max(rows) - min(rows) < min_height:  # for testing purposes
+            min_height = max(rows) - min(rows)  # for testing purposes
+        if max(cols) - min(cols) < min_width:  # for testing purposes
+            min_width = max(cols) - min(cols)  # for testing purposes
+
+        '''checking if the segment is large enough to run the window'''
+        if ((max(rows) - min(rows)) > detection_window_row) & ((max(cols) - min(cols)) > detection_window_col):
+
+            '''iterating the HOG sliding window'''
+            for y in range(min(rows), max(rows) - detection_window_row, 4):
+                for x in range(min(cols), max(cols) - detection_window_col, 4):
+                    roi = greyImage[y:y + detection_window_row, x:x + detection_window_col]  # [y1:y2, x1:x2]
+
+                    '''add the descriptor with segment value'''
+                    # temp_h_o_g_descriptors.append(hog.compute(img=roi))
+                    dictionary[SegVal(segVal)] = hog.compute(img=roi)
+
+            # '''after iterating the HOG kernel over the segment, add the descriptors to the dictionary'''
+            # dictionary[segVal] = temp_h_o_g_descriptors
+    print('segments with proper size for HOG : ', len(dictionary))
+    print('minimum height of roi -', min_height, ' | minimum width of roi -', min_width)
+
+    '''after iterating over all the segments that are without the required amount of key points,
+    compare between the descriptors of each segment obtained
+    here in the dictionary key->segment_value | value->HOG descriptor'''
+    minimum_distance = 10000  # for testing purposes
+
+    '''prepare a numpy array of HOG descriptors'''
+    hog_descriptors = numpy.array(list(dictionary.values()))
+    list_of_keys = numpy.array(list(dictionary.keys()))
+    print('every thing is fine since descriptors and keys are of same length-',len(hog_descriptors),',',len(list_of_keys))
+    # print('check with final item : ',hog_descriptors[758] == hog_descriptors[645],'segment value : ',)
+    # print('check final item test 2 : ', hog_descriptors[49415] == hog_descriptors[9143])
+    # print('check final item test 3 : ', hog_descriptors[49415] == hog_descriptors[6252])
+
+    '''prepare the BF matcher'''
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(hog_descriptors, hog_descriptors, k=2)
+
+    '''iterating over matches to get the best matches'''
+    for i, (m, n) in enumerate(matches):
+        distance = abs(n.distance- m.distance)
+
+        # if distance < minimum_distance:  # for testing purposes
+        #     minimum_distance = distance  # for testing purposes
+
+        if distance < 0.4:
+            print(' m query index = ', m.queryIdx, '| m train index = ', m.trainIdx,
+                  '| n query index = ', n.queryIdx, '| n train index = ', n.trainIdx,
+                  '| n distance - ', n.distance, '| m distance - ', m.distance, ' | distance : ',
+                  distance)
+
+            '''obtain the segment values for matched descriptors'''
+            keyValue1 = list_of_keys[m.queryIdx].segmentValue
+            keyValue2 = list_of_keys[n.trainIdx].segmentValue
+            # tested combinations -
+            # (m.queryIdx,n.trainIdx):"seem to be fine a little"
+            # (m.queryIdx,m.trainIdx):"I think this is not working"
+
+            '''need to make sure that the descriptors arenot of the same segment'''
+            if keyValue1 != keyValue2:
+                print('above is taken')
+
+                '''fill into the return array of matches'''
+                if keyValue1 in matchedSegments:
+                    matchedSegments[keyValue1].append(keyValue2)
+                elif keyValue2 in matchedSegments:
+                    matchedSegments[keyValue2].append(keyValue1)
+                else:
+                    matchedSegments[keyValue1] = [keyValue2]
+
+    print('the minimum distance rechorded : ', minimum_distance)
+    return matchedSegments
 
 
 def calculsteHOGofSuspectAreas(suspectAreas: dict):
@@ -235,7 +399,7 @@ def matchKeypointsFlannSIFT(description: numpy.ndarray, segments: numpy.ndarray)
             else:
                 bestMatches[segmentVal1] = [segmentVal2]
 
-    print('total count : ', count)
+    print('SIFT key point match count : ', count)
 
     return bestMatches
 
@@ -336,7 +500,7 @@ def getMostAppropriteSegementNumber(image: numpy.ndarray) -> int:
     return totalSegments
 
 
-def getSegmentsWithoutRequiredNumberOfKeys(keys:list,segments:numpy.ndarray,requiredKeysPreCluster=1)->list:
+def getSegmentsWithoutRequiredNumberOfKeys(keys: list, segments: numpy.ndarray, requiredKeysPreCluster=1) -> list:
     """this will give a list of segment values those that do not have enough key points in them"""
     dictionary = {}
 
@@ -365,14 +529,16 @@ def getSegmentsWithoutRequiredNumberOfKeys(keys:list,segments:numpy.ndarray,requ
     segmentListWihGoodAmountOfKeys = [*dictionary]
     segsWithoutProperNumberOfKeys = [x for x in allSegmentValues if x not in segmentListWihGoodAmountOfKeys]
 
+    print('segments without enough keypoints - ', len(segsWithoutProperNumberOfKeys))
+
     return segsWithoutProperNumberOfKeys
 
 
 """ ################################## execution start position ############################################## """
 start_time = time.time()
-thresholdForKeypointMatching = 15
+thresholdForSIFT = 15
 requiredKeypointsPerCluster = 1
-
+thresholdForHOG = 15
 
 # img = cv2.imread('/home/waasala/workspace/PycharmProjects/OpenCVBasic/cloningDetection/image.png')
 # img = cv2.imread('/home/waasala/workspace/gimp/colorFlower-cloned.jpeg')
@@ -391,6 +557,16 @@ print('total segmetns :', len(numpy.unique(segments)))
 # matchKeypointsBFORB(image=img,segments=segments)
 # bestMatches = matchKeypointsFlannSIFT(des, segments)
 bestMatches = matchKeypointsBFSIFT(des, segments, 15)
+
+'''steps for the HOG detection'''
+segsWithoutSIFTs = getSegmentsWithoutRequiredNumberOfKeys(keys=keys, segments=segments,
+                                                          requiredKeysPreCluster=requiredKeypointsPerCluster)
+matchedSegsWithHOG = matchWithHOGKNN(noSIFTkeySegValList=segsWithoutSIFTs, segments=segments, imageColor=img,
+                                             threshold=thresholdForHOG)
+print('detected pathces form HOG : ', len(matchedSegsWithHOG))
+
+bestMatches.update(matchedSegsWithHOG)
+print('total patches',len(bestMatches))
 cv2.imshow('final image', resizeImage(img))
 drawMatchedClusters(image=img, matchedClusters=bestMatches, segments=segments)
 

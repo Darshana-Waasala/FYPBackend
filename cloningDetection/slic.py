@@ -43,4 +43,3 @@ plt.axis("off")
 
 # show the plots
 plt.show()
-
