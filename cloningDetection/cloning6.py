@@ -467,7 +467,7 @@ def matchKeypointsBFSIFT(description: numpy.ndarray, segments: numpy.ndarray, th
     return bestMatches
 
 
-def matchKeypointsBFORB(image: numpy.ndarray, segments: numpy.ndarray) -> list:
+def matchKeypointsBFORB(image: numpy.ndarray) -> list:
     # Initiate ORB detector
     orb = cv2.ORB_create()
 
@@ -547,18 +547,19 @@ thresholdForHOG = 15
 # img = resizeImage(cv2.imread('/home/waasala/workspace/gimp/P1000293tamp9.jpg'))
 # img = (cv2.imread('/home/waasala/workspace/gimp/DSC_0095_01_cloned.jpg'))
 # img = cv2.imread('/home/waasala/workspace/gimp/gardenMultipleClone.jpg')
-img = cv2.imread('/home/waasala/workspace/gimp/athal.jpg')
-
-keys, des = getSIFTKeyDes(image=img)
+img = cv2.imread('/home/waasala/workspace/gimp/beach_wood_multiple.png')
+matchKeypointsBFORB(image=img)
+"""keys, des = getSIFTKeyDes(image=img)
 segments = getImageSegments(rgbImage=img.copy(), segments=getMostAppropriteSegementNumber(image=img), sigma=5)
 # drawSegments(image=img,segments=segments)
 print('total segmetns :', len(numpy.unique(segments)))
 # drawSIFTKeysOnly(image=img)
 # matchKeypointsBFORB(image=img,segments=segments)
 # bestMatches = matchKeypointsFlannSIFT(des, segments)
-bestMatches = matchKeypointsBFSIFT(des, segments, 15)
+bestMatches = matchKeypointsBFSIFT(des, segments, 15)"""
 
-'''steps for the HOG detection'''
+
+""""'''steps for the HOG detection'''
 segsWithoutSIFTs = getSegmentsWithoutRequiredNumberOfKeys(keys=keys, segments=segments,
                                                           requiredKeysPreCluster=requiredKeypointsPerCluster)
 matchedSegsWithHOG = matchWithHOGKNN(noSIFTkeySegValList=segsWithoutSIFTs, segments=segments, imageColor=img,
@@ -568,7 +569,7 @@ print('detected pathces form HOG : ', len(matchedSegsWithHOG))
 bestMatches.update(matchedSegsWithHOG)
 print('total patches',len(bestMatches))
 cv2.imshow('final image', resizeImage(img))
-drawMatchedClusters(image=img, matchedClusters=bestMatches, segments=segments)
+drawMatchedClusters(image=img, matchedClusters=bestMatches, segments=segments)"""
 
 print('time of execution - ', time.time() - start_time)
 
