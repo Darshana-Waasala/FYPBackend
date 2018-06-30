@@ -126,11 +126,11 @@ def getMostAppropriteSegementNumber(image: numpy.ndarray) -> int:
 
 """ ################################## execution start position ############################################## """
 job_start = time.time()
-allFileList = glob.glob('/home/waasala/workspace/gimp/*')
+allFileList = glob.glob('/home/waasala/Education/Level 4_Semester two theory/group project/data/MICC_F600/*')
 
-thresholdForSIFT = 15
 requiredKeypointsPerCluster = 1
-thresholdForHOG = 15
+clonedPicNumber = 0
+nonClonedPicNumber = 0
 
 cloned_log = open('/home/waasala/workspace/cloned.txt', 'a')
 no_cloned_log = open('/home/waasala/workspace/no_clone.txt', 'a')
@@ -145,17 +145,24 @@ for i, file in enumerate(allFileList):
 
     bestMatches = matchKeypointsBFSIFT(des, segments, 15)
 
-    writing_string = str(i) + ') -> file name: ' + str(file) + ' | time taken:' + str(
-        time.time() - start_time) + ' | keys:' + str(
-        len(keys)) + ' | segments:' + str(len(segments)) + '\n'
     if len(bestMatches) > 0:
+        clonedPicNumber += 1
+        writing_string = str(clonedPicNumber) + ') -> name: ' + str(file.split('/')[8]) + ' | time:' + str(
+            time.time() - start_time) + ' | keys:' + str(
+            len(keys)) + ' | segments:' + str(len(segments)) + '\n'
         cloned_log.write(writing_string)
     else:
+        nonClonedPicNumber += 1
+        writing_string = str(nonClonedPicNumber) + ') -> name: ' + str(file.split('/')[8]) + ' | time:' + str(
+            time.time() - start_time) + ' | keys:' + str(
+            len(keys)) + ' | segments:' + str(len(segments)) + '\n'
         no_cloned_log.write(writing_string)
 
-final_string = '\n\n>>>>>>>>>>>>>>>>>>>>>>total time taken:' + str(time.time() - job_start) + '>>>>>>>>>>>>>>>>>>>>>>'
-cloned_log.write(final_string)
-no_cloned_log.write(final_string)
+final_string_cloned = '\n\n>>>>>>>>>>>>>>>>>>>>total time taken: ' + str(
+    time.time() - job_start) + ' <<<<<<<<<<<<<<<<<<<<' + '\n>>>>>>>>>>>>>>>>>>>total images scanned: ' + str(
+    len(allFileList)) + '<<<<<<<<<<<<<<<<<<<<'
+cloned_log.write(final_string_cloned)
+no_cloned_log.write(final_string_cloned)
 
 cloned_log.close()
 no_cloned_log.close()

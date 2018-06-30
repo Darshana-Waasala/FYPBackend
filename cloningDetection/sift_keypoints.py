@@ -31,7 +31,12 @@ def getSIFTKeysOnly(image: numpy.uint8) -> None:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     sift = cv2.xfeatures2d.SIFT_create()
     kp = sift.detect(gray, None)
-    img = cv2.drawKeypoints(gray, kp, image)
+    print('cordinates-',kp[0].pt)
+    print('type',type(kp))
+    print('type', type(kp[0]))
+    drawingKP = [kp[0]]
+    print('check type',type(drawingKP))
+    img = cv2.drawKeypoints(gray, drawingKP, image)
     cv2.imshow('sift_keypoints.jpg', img)
     return None
 
@@ -48,7 +53,7 @@ def matchedKeypoints(keypoints: list, descriptors: numpy.ndarray, threshold=0.00
 
 def testSIFT():
     # img1 = cv2.imread('/home/waasala/workspace/gimp/test1.jpeg', 0)  # queryImage
-    img2 = resizeImage(cv2.imread('/home/waasala/workspace/gimp/colorFlower_rotated.jpeg', 0))  # trainImage
+    img2 = resizeImage(cv2.imread('/home/waasala/workspace/gimp/colorFlower-cloned.jpeg', 0))  # trainImage
     # img1 = resizeImage(cv2.imread('/home/waasala/workspace/gimp/colorFlower_rotated.jpeg', 0))[10:200,70:350]  # query
     img1 = img2.copy()[160:180, 150:170]
 
@@ -75,7 +80,8 @@ def testSIFT():
     plt.imshow(img3), plt.show()
 
 
-testSIFT()
+# testSIFT()
+getSIFTKeysOnly(resizeImage(cv2.imread('/home/waasala/workspace/gimp/colorFlower-cloned.jpeg')))
 '''img2 = resizeImage(cv2.imread('/home/waasala/workspace/gimp/colorFlower_rotated.jpeg', 0))
 # img2 = resizeImage(cv2.imread('/home/waasala/workspace/gimp/colorFlower_rotated.jpeg', 0))[10:200,70:200]
 img2[160:180, 150:170] = 0

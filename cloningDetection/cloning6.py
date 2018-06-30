@@ -547,16 +547,18 @@ thresholdForHOG = 15
 # img = resizeImage(cv2.imread('/home/waasala/workspace/gimp/P1000293tamp9.jpg'))
 # img = (cv2.imread('/home/waasala/workspace/gimp/DSC_0095_01_cloned.jpg'))
 # img = cv2.imread('/home/waasala/workspace/gimp/gardenMultipleClone.jpg')
-img = cv2.imread('/home/waasala/workspace/gimp/beach_wood_multiple.png')
+# img = cv2.imread('/home/waasala/workspace/gimp/beach_wood_multiple.png')
+# img = cv2.imread('/home/waasala/Education/Level 4_Semester two theory/group project/data/MICC_F600/central_park.png')
+img = resizeImage(cv2.imread('/home/waasala/workspace/gimp/_r30wood_carvings.png'))
 matchKeypointsBFORB(image=img)
-"""keys, des = getSIFTKeyDes(image=img)
+keys, des = getSIFTKeyDes(image=img)
 segments = getImageSegments(rgbImage=img.copy(), segments=getMostAppropriteSegementNumber(image=img), sigma=5)
 # drawSegments(image=img,segments=segments)
 print('total segmetns :', len(numpy.unique(segments)))
 # drawSIFTKeysOnly(image=img)
 # matchKeypointsBFORB(image=img,segments=segments)
 # bestMatches = matchKeypointsFlannSIFT(des, segments)
-bestMatches = matchKeypointsBFSIFT(des, segments, 15)"""
+bestMatches = matchKeypointsBFSIFT(des, segments, 15)
 
 
 """"'''steps for the HOG detection'''
@@ -568,8 +570,8 @@ print('detected pathces form HOG : ', len(matchedSegsWithHOG))
 
 bestMatches.update(matchedSegsWithHOG)
 print('total patches',len(bestMatches))
-cv2.imshow('final image', resizeImage(img))
-drawMatchedClusters(image=img, matchedClusters=bestMatches, segments=segments)"""
+cv2.imshow('final image', resizeImage(img))"""
+drawMatchedClusters(image=img, matchedClusters=bestMatches, segments=segments)
 
 print('time of execution - ', time.time() - start_time)
 

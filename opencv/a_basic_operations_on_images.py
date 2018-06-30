@@ -23,7 +23,7 @@ class BasicOperations:
     def get_image(self):
         """get image instance"""
         image = cv2.imread(self.image_path)
-        print(image.shape)
+        print(image.shape)  # (height,width,channels)
         return image
 
     def show_image(self, windowName:str, image:np.uint8)->None:

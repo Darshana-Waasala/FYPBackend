@@ -25,14 +25,16 @@ import time
 
 
 class Features:
-    def __init__(self, keys: list, des: numpy.ndarray):
+    def __init__(self, query_keys: list, query_des: numpy.ndarray, train_keys: numpy.ndarray, train_des: numpy.ndarray):
         """this is the constuctor of the method"""
-        self.keys = keys
-        self.des = des
+        self.query_keys = query_keys
+        self.query_des = query_des
+        self.train_keys = train_keys
+        self.train_des = train_des
 
 
 class Channels:
-    def __init__(self,red:int, green:int, blue:int):
+    def __init__(self, red: int, green: int, blue: int):
         """this will help to hold the average value of three channel pixels in a segment"""
         self.red = red
         self.green = green
@@ -52,7 +54,9 @@ def getMostAppropriteSegementNumber(image: numpy.ndarray) -> int:
     """shape is in the order ROWS,COLS,CHANNELS -> (y,x,c)"""
     y, x, c = image.shape
     totalSegments = int(round((x * y) / (50 * 50)))
+    print(totalSegments)
     return totalSegments
+    # return 50
 
 
 def drawSegments(image: numpy.float, segments: numpy.ndarray) -> None:
@@ -68,11 +72,12 @@ def drawSegments(image: numpy.float, segments: numpy.ndarray) -> None:
 
 def resizeImage(image: numpy.uint8) -> numpy.uint8:
     """this will resize image if dimensions are greter than 512"""
-    if image.shape[0] > 512:
-        width = int(numpy.around((image.shape[1]) / 2.5))
-        height = int(numpy.around(image.shape[0] / 2.5))
-        resizedImage = cv2.resize(src=image, dsize=(width, height))
-        return resizedImage
+    if image.shape[0] > 1100:
+        width = int(numpy.around((image.shape[1]) / 2))
+        height = int(numpy.around(image.shape[0] / 2))
+        print('height , width:',width,',',height)
+        resize_image = cv2.resize(src=image, dsize=(width, height))
+        return resizeImage(resize_image)
     return image
 
 
@@ -111,168 +116,333 @@ def drawSURFKeysOnly(image: numpy.uint8) -> None:
     return None
 
 
-def getLocalizedImageSegment(segmentValue: int, segments: numpy.ndarray, image: numpy.ndarray) -> numpy.ndarray:
-    """this will get the approximated image segment for the given segment mask value"""
+def getLocalizedImageSegment(segmentValue: int, segments: numpy.ndarray, image: numpy.ndarray) -> (
+        numpy.ndarray, numpy.ndarray):
+    """this will get the approximated image segment for the given segment mask value and
+    the corresponding whole image with removed segment"""
 
-    '''assuming the sent suspect keypoints are not in the same segment'''
+    '''assuming the sent suspect key points are not in the same segment'''
     '''numpy.where will give the list of rows and list of cols corresponding each pixel in the segment 
     with the specified value'''
     rows, cols = numpy.where(segments == segmentValue)
 
     '''image ROI is taken as image[y1:y2,x1:x2]'''
-    imageSegment = image[min(rows):max(rows), min(cols):max(cols)]
-    return imageSegment
+    roi = image[min(rows):max(rows), min(cols):max(cols)]
+
+    '''removing the roi from the full image'''
+    imageWithRemovedROI = image.copy()
+    imageWithRemovedROI[min(rows):max(rows), min(cols):max(cols)] = 0
+
+    return roi, imageWithRemovedROI
 
 
 def getArrangedDictionary(segments: numpy.ndarray, image: numpy.ndarray) -> dict:
     """this will prepare a dictionary of key ponts and their descriptors of each approximated patches"""
+    sift = cv2.xfeatures2d.SIFT_create()
 
     '''prepare the dictionary that is to be returned and is arranged as,
     dict{segmentValue:FeatureObject,....}'''
     dictionary = {}
 
     '''get the unique values of the segmentation mask'''
-    uniqueSegmentValues = numpy.unique(segments)
+    unique_segment_values = numpy.unique(segments)
 
     '''iterate over the segment to get the localized sift keypoints'''
-    for segmentValue in uniqueSegmentValues:
-        localImageSegment = getLocalizedImageSegment(segmentValue=segmentValue, segments=segments, image=image)
-        keys, des = getSIFTKeyDes(image=localImageSegment)
+    for segmentValue in unique_segment_values:
+        local_image_segment, image_without_roi = getLocalizedImageSegment(segmentValue=segmentValue, segments=segments,
+                                                                          image=image)
+
+        '''# for testing purposes
+        local_img_path = '/home/waasala/remove/' + str(segmentValue) + '_li.jpeg'
+        image_without_roi_path = '/home/waasala/remove/' + str(segmentValue) + '_fi.jpeg'
+        cv2.imwrite(str(local_img_path), local_image_segment)
+        cv2.imwrite(str(image_without_roi_path), image_without_roi)'''
+
+        query_keys, query_des = sift.detectAndCompute(cv2.cvtColor(local_image_segment,cv2.COLOR_BGR2GRAY), None)
+        train_keys, train_des = sift.detectAndCompute(cv2.cvtColor(image_without_roi,cv2.COLOR_BGR2GRAY), None)
 
         '''adding only if at least one key point is found'''
-        if des is not None:
-            dictionary[segmentValue] = Features(keys=keys, des=des)
+        if query_des is not None:
+            dictionary[segmentValue] = Features(query_keys=query_keys, query_des=query_des, train_keys=train_keys,
+                                                train_des=train_des)
 
     return dictionary
 
 
-def getMatchedPatches(arrangedDictionary: dict, matchPerCluster=5) -> dict:
+def getMatchedPatches(arranged_dictionary: dict, segments: numpy.ndarray, key_matches_per_cluster=5,
+                      cluster_matches_per_cluster=2) -> dict:
     """this function will iterate over the localized descriptors and return the dictionary of matched items"""
     # leastDistance = 5000
 
     '''prepare the BF matcher for the knn match between the localized keypoints'''
     bf = cv2.BFMatcher()  # BFMatcher with default params
 
-    matchedSegments = {}  # the dictionary to hold the matched segments
+    matched_segments = {}  # the dictionary to hold the matched segments
+
     '''iterate over the arranged patches to get (nxn - n!) iterations'''
-    for index1, segmentValue1 in enumerate(arrangedDictionary):
-        for index2, segmentValue2 in enumerate(arrangedDictionary):
+    for segmentValue in arranged_dictionary:
+        dic_value = arranged_dictionary[segmentValue]
+        '''to make sure that we check the segment combinations that have not met before'''
+        condition = dic_value.query_des is not None
+        if condition:
+            matches = bf.knnMatch(queryDescriptors=dic_value.query_des, trainDescriptors=dic_value.train_des, k=2)
+            count = 0  # to keep the count of the matches under the threshold
+            matching_segments = set()
+            '''iterating over the matches to filter out those under the required threshold'''
+            for i, m in enumerate(matches):
 
-            '''to make sure that we check the segment combinations that have not met before'''
-            condition = (index2 > index1) & (arrangedDictionary[segmentValue1].des is not None) & \
-                        (arrangedDictionary[segmentValue2].des is not None)
-            if condition:
-                print('condition....', condition)
-                matches = bf.knnMatch(queryDescriptors=arrangedDictionary[segmentValue1].des,
-                                      trainDescriptors=arrangedDictionary[segmentValue2].des, k=2)
-                # print('length of matches : ',len(matches))
-                count = 0  # to keep the count of the matches under the threshold
-                '''iterating over the matches to filter out those under the required threshold'''
-                for i, m in enumerate(matches):
+                '''since some of the matches do not get both n and m'''
+                if len(m) > 1:
+                    if m[0].distance < 0.4 * m[1].distance:
+                        '''ALTERNATIVES TRIED FOR THE ABOVE IF CONDITION
+                        if m[1].distance != 0:
+                            if (m[0].distance / m[1].distance) < leastDistance:
+                                leastDistance = (m[0].distance / m[1].distance)'''
 
-                    '''since some of the matches do not get both n and m'''
-                    if len(m) > 1:
-                        if m[0].distance < 0.4 * m[1].distance:
-                            count += 1
-                            '''if m[1].distance != 0:
-                                if (m[0].distance / m[1].distance) < leastDistance:
-                                    leastDistance = (m[0].distance / m[1].distance)'''
+                        '''now we have found a good match'''
+                        count += 1
+                        '''get the segment value of the matched key point'''
+                        col, row = dic_value.train_keys[m[0].trainIdx].pt  # key.pt -> (x,y)|(col,row)|(width,height)
 
-                '''filling the segment into the dictionary if there are required number of matches in the patches'''
-                if count >= matchPerCluster:
-                    if segmentValue1 in matchedSegments:
-                        matchedSegments[segmentValue1].append(segmentValue2)
-                    elif segmentValue2 in matchedSegments:
-                        matchedSegments[segmentValue2].append(segmentValue1)
-                    else:
-                        matchedSegments[segmentValue1] = [segmentValue2]
-            else:
-                continue
+                        # print('train col,row:', int(round(col)), ',', int(round(row)), 'query seg value:', segmentValue,
+                        #       '|len(train_keys):', len(dic_value.train_keys), '|len(query_keys):',
+                        #       len(dic_value.query_keys), ' |n trainIdx:', m[1].trainIdx, ' |n queryIdx:', m[1].queryIdx,
+                        #       ' |m trainIdx', m[0].trainIdx, ' |m queryIdx', m[0].queryIdx)
+
+                        matching_segments.add(segments[int(round(row)), int(round(col))])
+
+            '''filling the segment into the dictionary if there are required number of matches in the patches'''
+            if (count >= key_matches_per_cluster) & (len(matching_segments) >= cluster_matches_per_cluster):
+                print('matching...', segmentValue, ',', matching_segments)
+                if segmentValue in matched_segments:
+                    matched_segments[segmentValue].extend(
+                        x for x in matching_segments if x not in matched_segments[segmentValue])
+                # elif matching_segment in matched_segments:
+                #     matched_segments[matching_segment].append(segmentValue)
+                else:
+                    matched_segments[segmentValue] = matching_segments
+
+        else:
+            continue
+
     # print('least distance rechorded .......', leastDistance)
-    return matchedSegments
+    return matched_segments
+
+
+def getArrangedDictionaryORB(segments: numpy.ndarray, image: numpy.ndarray) -> dict:
+    """this will prepare a dictionary of key ponts and their descriptors of each approximated patches"""
+
+    # create orb detector
+    orb = cv2.ORB_create()
+
+    '''prepare the dictionary that is to be returned and is arranged as,
+    dict{segmentValue:FeatureObject,....}'''
+    dictionary = {}
+
+    '''get the unique values of the segmentation mask'''
+    unique_segment_values = numpy.unique(segments)
+
+    '''iterate over the segment to get the localized sift keypoints'''
+    for segmentValue in unique_segment_values:
+        local_image_segment, image_without_roi = getLocalizedImageSegment(segmentValue=segmentValue, segments=segments,
+                                                                          image=image)
+
+        '''# for testing purposes
+        local_img_path = '/home/waasala/remove/' + str(segmentValue) + '_li.jpeg'
+        image_without_roi_path = '/home/waasala/remove/' + str(segmentValue) + '_fi.jpeg'
+        cv2.imwrite(str(local_img_path), local_image_segment)
+        cv2.imwrite(str(image_without_roi_path), image_without_roi)'''
+
+        query_keys, query_des = orb.detectAndCompute(image=local_image_segment, mask=None)
+        train_keys, train_des = orb.detectAndCompute(image=image_without_roi, mask=None)
+
+        '''adding only if at least one key point is found'''
+        if query_des is not None:
+            dictionary[segmentValue] = Features(query_keys=query_keys, query_des=query_des, train_keys=train_keys,
+                                                train_des=train_des)
+
+    return dictionary
+
+
+def getMatchedPatchesORB(arranged_dictionary: dict, segments: numpy.ndarray, key_matches_per_cluster=1,
+                         cluster_matches_per_cluster=3) -> dict:
+    """this function will iterate over the localized descriptors and return the dictionary of matched items"""
+    least_distance = 5000
+
+    '''prepare the BF matcher for the knn match between the localized keypoints'''
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)  # BFMatcher with default params
+
+    matched_segments = {}  # the dictionary to hold the matched segments
+
+    '''iterate over the arranged patches to get (nxn - n!) iterations'''
+    for segmentValue in arranged_dictionary:
+        dic_value = arranged_dictionary[segmentValue]
+        '''to make sure that we check the segment combinations that have not met before'''
+        condition = dic_value.query_des is not None
+        if condition:
+            matches = bf.knnMatch(queryDescriptors=dic_value.query_des, trainDescriptors=dic_value.train_des, k=2)
+            count = 0  # to keep the count of the matches under the threshold
+            matching_segments = set()
+            '''iterating over the matches to filter out those under the required threshold'''
+            for i, m in enumerate(matches):
+
+                '''since some of the matches do not get both n and m'''
+                if len(m) > 1:
+                    print('m/m[0] trainIdx:', m[0].trainIdx, 'm/m[0] queryIdx:', m[0].queryIdx, ' | n/m[1] trainIdx :',
+                          m[1].trainIdx, ' | n/m[1] queryIdx :', m[1].queryIdx)
+                    if m[1].distance != 0:
+                        if (m[0].distance/m[1].distance) < least_distance:
+                            least_distance = m[0].distance/m[1].distance
+                    if m[0].distance < 0.75 * m[1].distance:
+                        '''ALTERNATIVES TRIED FOR THE ABOVE IF CONDITION
+                        if m[1].distance != 0:
+                            if (m[0].distance / m[1].distance) < least_distance:
+                                least_distance = (m[0].distance / m[1].distance)'''
+
+                        '''now we have found a good match'''
+                        count += 1
+                        '''get the segment value of the matched key point'''
+                        col, row = dic_value.train_keys[m[0].trainIdx].pt  # key.pt -> (x,y)|(col,row)|(width,height)
+
+                        # print('train col,row:', int(round(col)), ',', int(round(row)), 'query seg value:', segmentValue,
+                        #       '|len(train_keys):', len(dic_value.train_keys), '|len(query_keys):',
+                        #       len(dic_value.query_keys), ' |n trainIdx:', m[1].trainIdx, ' |n queryIdx:', m[1].queryIdx,
+                        #       ' |m trainIdx', m[0].trainIdx, ' |m queryIdx', m[0].queryIdx)
+
+                        matching_segments.add(segments[int(round(row)), int(round(col))])
+
+            '''filling the segment into the dictionary if there are required number of matches in the patches'''
+            if (count >= key_matches_per_cluster) & (len(matching_segments) >= cluster_matches_per_cluster):
+                print('matching...', segmentValue, ',', matching_segments)
+                if segmentValue in matched_segments:
+                    matched_segments[segmentValue].extend(
+                        x for x in matching_segments if x not in matched_segments[segmentValue])
+                # elif matching_segment in matched_segments:
+                #     matched_segments[matching_segment].append(segmentValue)
+                else:
+                    matched_segments[segmentValue] = matching_segments
+
+        else:
+            continue
+
+    print('least distance rechorded .......', least_distance)
+    return matched_segments
 
 
 def drawMatchedClusters(image: numpy.ndarray, matchedClusters: dict, segments: numpy.ndarray) -> None:
     """this will draw the matched clusters"""
     for matchedClusterNumber in matchedClusters:
+        print('matched parent cluster:', matchedClusterNumber, ' |children :', end='', flush=True)
+
         rows1, cols1 = numpy.where(segments == matchedClusterNumber)
         for row1, col1 in zip(rows1, cols1):
             image[row1, col1, 0] = 0  # (255, 255, 255)
-        for similarClusterNumber in matchedClusters[matchedClusterNumber]:
-            rows2, cols2 = numpy.where(segments == similarClusterNumber)
 
-            ''' Draw a diagonal blue line with thickness of 5 px parameters: pt1 is in (x,y) order '''
-            cv2.line(img=image, pt1=(cols1[0], rows1[0]), pt2=(cols2[0], rows2[0]), color=(255, 0, 0), thickness=2)
+        if len(matchedClusters[matchedClusterNumber]) >= 1:
+            for similarClusterNumber in matchedClusters[matchedClusterNumber]:
+                rows2, cols2 = numpy.where(segments == similarClusterNumber)
+                print(similarClusterNumber, ',', end='', flush=True)
 
-            for row2, col2 in zip(rows2, cols2):
-                image[row2, col2, 1] = 0  # (255, 255, 255)
+                ''' Draw a diagonal blue line with thickness of 5 px parameters: pt1 is in (x,y) order '''
+                cv2.line(img=image, pt1=(cols1[0], rows1[0]), pt2=(cols2[0], rows2[0]), color=(255, 0, 0), thickness=2)
 
-    cv2.imshow('clone detected image', resizeImage(image))
+                for row2, col2 in zip(rows2, cols2):
+                    image[row2, col2, 1] = 0  # (255, 255, 255)
+        print('\n')
+
+    cv2.imshow('clone detected image', (image))
 
 
 def getEnlargeLocalImageSegment(matchedPatches: dict, segments: numpy.ndarray, image: numpy.ndarray):
-    """this will enlarge the image patch based on averageColor"""
+    """this will enlarge the image patch based on averageColor
+    this function will return a """
+
+    '''get the image dimensions'''
+    img_height, img_width, img_channels = image.shape
+
+    '''obtaining the unique segment values'''
+    uniqueSegmentValues = numpy.unique(segments)
+
+    '''iterating over the segment values to get the individual pixel values'''
+    for segmentValue in uniqueSegmentValues:
+        rows, cols = numpy.unique(segments == segmentValue)
+
+        for row in rows:
+            for col in cols:
+
+                '''confirm segment does not lie in  4 boundaries of the image'''
+                if row != 0:  # if the pixel is not in the left corner
+
+                    '''get the image segment value next to the pixel'''
+                    tempegVal = segments[row - 1, col]
 
 
 def getAverageImageColorValues(image: numpy.ndarray, segment: numpy.ndarray) -> dict:
     """this will generate average color value per segment and return the result as a dictionary with
     segment value as key and average pixel value as value"""
-    segmentAverageColorValue = {}
-    uniqueSegmentValues = numpy.unique(segment)
+    segment_average_color_value = {}
+    unique_segment_values = numpy.unique(segment)
 
     '''iterating over segment values to get the average corresponding image color values'''
-    for segmentValue in uniqueSegmentValues:
-        tempRedValue = 0
-        tempGreenValue = 0
-        tempBlueValue = 0
+    for segmentValue in unique_segment_values:
+        temp_red_value = 0
+        temp_green_value = 0
+        temp_blue_value = 0
         rows, cols = numpy.where(segment == segmentValue)
 
         '''iterating over the pixels of the segment to get the average of three channels'''
         for row, col in zip(rows, cols):
-            tempRedValue = tempRedValue + image[row, col, 0]
-            tempGreenValue = tempGreenValue + image[row, col, 1]
-            tempBlueValue = tempBlueValue + image[row, col, 2]
-        segmentAverageColorValue[segmentValue] = Channels(red=int(round(tempRedValue/len(rows))),green=int(round(tempGreenValue/len(rows))),
-                                                          blue=int(round(tempBlueValue/len(rows))))
+            temp_red_value = temp_red_value + image[row, col, 0]
+            temp_green_value = temp_green_value + image[row, col, 1]
+            temp_blue_value = temp_blue_value + image[row, col, 2]
 
-        '''iterating over the segment to color the image'''
-        for row,col in zip(rows,cols):
-            image[row,col,0] = segmentAverageColorValue[segmentValue].red
-            image[row, col, 1] = segmentAverageColorValue[segmentValue].green
-            image[row, col, 2] = segmentAverageColorValue[segmentValue].blue
+        segment_average_color_value[segmentValue] = Channels(red=int(round(temp_red_value / len(rows))),
+                                                             green=int(round(temp_green_value / len(rows))),
+                                                             blue=int(round(temp_blue_value / len(rows))))
 
-    cv2.imshow('new colored image',resizeImage(image=image))
+    #     '''iterating over the segment to color the image'''
+    #     for row, col in zip(rows, cols):
+    #         image[row, col, 0] = segment_average_color_value[segmentValue].red
+    #         image[row, col, 1] = segment_average_color_value[segmentValue].green
+    #         image[row, col, 2] = segment_average_color_value[segmentValue].blue
+    #
+    # cv2.imshow('new colored image', resizeImage(image=image))
+    return segment_average_color_value
 
 
 """ ################################## execution start position ############################################## """
 start_time = time.time()
-# img = cv2.imread('/home/waasala/workspace/gimp/colorFlower-cloned.jpeg')
-# img = cv2.imread('/home/waasala/workspace/gimp/DSC01176tamp14.jpg')
-# img = cv2.imread('/home/waasala/workspace/gimp/colorFlower_rotated.jpeg')
-img = cv2.imread('/home/waasala/workspace/gimp/athal.jpeg')
+# img = resizeImage(cv2.imread('/home/waasala/Education/Level 4_Semester two theory/group project/data/MICC_F600/central_park.png'))
+img = resizeImage(cv2.imread('/home/waasala/workspace/gimp/00007tamp4.jpg'))
 
-segments = getImageSegments(rgbImage=img, segments=getMostAppropriteSegementNumber(image=img), sigma=5)
-print('got segments :', len(numpy.unique(segments)))
-# arrangedDict = getArrangedDictionary(segments=segments, image=img)
-# print('arranged dictionary', len(arrangedDict))
-# matchedPatches = getMatchedPatches(arrangedDictionary=arrangedDict, matchPerCluster=5)
-# print('matched patches:', len(matchedPatches))
-# drawMatchedClusters(image=img, matchedClusters=matchedPatches, segments=segments)
-getAverageImageColorValues(image=img,segment=segments)
+# ''' using SIFT descriptor with brute force KNN match
+segs = getImageSegments(rgbImage=img, segments=getMostAppropriteSegementNumber(image=img), sigma=5)
+print('got segments :', len(numpy.unique(segs)))
+arrangedDict = getArrangedDictionary(segments=segs, image=img)
+print('arranged dictionary', len(arrangedDict))
+matchedPatches = getMatchedPatches(arranged_dictionary=arrangedDict, segments=segs, key_matches_per_cluster=2,
+                                   cluster_matches_per_cluster=2)
+print('matched patches:', len(matchedPatches))
+drawMatchedClusters(image=img, matchedClusters=matchedPatches, segments=segs)
+# getAverageImageColorValues(image=img, segment=segments)
 
 print('time of execution - ', time.time() - start_time)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+# '''
 
-'''some of the new things we have learned to use here:
-print('the segments : ', numpy.unique(segments))
-print('the minimum value: ', segments.min())
-print('the maximum value: ', segments.max())
+''' using ORB descriptor with brute force KNN match
+segs = getImageSegments(rgbImage=img, segments=getMostAppropriteSegementNumber(image=img), sigma=5)
+print('got segments :', len(numpy.unique(segs)))
+arrangedDict = getArrangedDictionaryORB(segments=segs, image=img)
+print('arranged dictionary', len(arrangedDict))
+matchedPatches = getMatchedPatchesORB(arranged_dictionary=arrangedDict, segments=segs, key_matches_per_cluster=2,
+                                      cluster_matches_per_cluster=2)
+print('matched patches:', len(matchedPatches))
+drawMatchedClusters(image=img, matchedClusters=matchedPatches, segments=segs)
+# getAverageImageColorValues(image=img, segment=segments)
 
-k = numpy.array([
-    [1,2,3],
-    [4,5,6]
-])
-
-print('test min :',k.min(), ' | max :',k.max(),' | segments :', numpy.unique(k))
+print('time of execution - ', time.time() - start_time)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 '''

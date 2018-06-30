@@ -2,10 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a2d1507f-e9a7-4eb6-b00b-c88d01729328" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/cloningDetection/cloning8.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cloningDetection/cloning6.py" beforeDir="false" afterPath="$PROJECT_DIR$/cloningDetection/cloning6.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cloningDetection/cloning7.py" beforeDir="false" afterPath="$PROJECT_DIR$/cloningDetection/cloning7.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cloningDetection/cloning8.py" beforeDir="false" afterPath="$PROJECT_DIR$/cloningDetection/cloning8.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cloningDetection/sift_keypoints.py" beforeDir="false" afterPath="$PROJECT_DIR$/cloningDetection/sift_keypoints.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/opencv/a_basic_operations_on_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/opencv/a_basic_operations_on_images.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,40 +18,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="cloning3.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloningDetection/cloning3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1305">
-              <caret line="132" column="85" selection-start-line="132" selection-start-column="85" selection-end-line="132" selection-end-column="85" />
-              <folding>
-                <element signature="e#3108#3520#0" />
-                <element signature="e#3627#4150#0" />
-                <element signature="e#4247#5315#0" />
-                <element signature="e#5408#7647#0" />
-                <element signature="e#7755#8300#0" />
-                <element signature="e#8396#9808#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="sift_keypoints.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cloningDetection/sift_keypoints.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1275">
-              <caret line="88" column="90" selection-start-line="88" selection-start-column="90" selection-end-line="88" selection-end-column="90" />
+            <state relative-caret-position="735">
+              <caret line="52" selection-start-line="52" selection-end-line="52" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cloning4.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloningDetection/cloning4.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="795">
-              <caret line="63" column="39" selection-start-line="63" selection-start-column="39" selection-end-line="63" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -66,50 +42,86 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="cloning4.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cloningDetection/cloning4.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="795">
+              <caret line="63" column="39" selection-start-line="63" selection-start-column="39" selection-end-line="63" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="cloning6.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cloningDetection/cloning6.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="105">
-              <caret line="549" column="17" lean-forward="true" selection-end-line="581" />
+              <caret line="550" column="117" selection-start-line="550" selection-start-column="20" selection-end-line="550" selection-end-column="117" />
               <folding>
                 <element signature="e#172#188#0" expanded="true" />
+                <element signature="e#21325#22188#0" />
+                <element signature="e#22261#22421#0" />
+                <element signature="e#22543#23789#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cloning8.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="cloning8.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cloningDetection/cloning8.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4035">
-              <caret line="278" selection-start-line="278" selection-end-line="278" />
+            <state relative-caret-position="55">
+              <caret line="74" column="28" selection-start-line="74" selection-start-column="28" selection-end-line="74" selection-end-column="28" />
+              <folding>
+                <element signature="e#5979#6309#1" />
+                <element signature="e#6927#10122#0" />
+                <element signature="e#8172#8430#1" />
+                <element signature="e#8748#8846#0" />
+                <element signature="e#10210#11672#0" />
+                <element signature="e#10894#11224#1" />
+                <element signature="e#12108#15729#0" />
+                <element signature="e#13171#13429#1" />
+                <element signature="e#13747#13845#0" />
+                <element signature="e#11399#12200#0" />
+                <element signature="e#12293#13937#0" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="testing.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloningDetection/testing.py">
+      <file leaf-file-name="f_image_retrival_search.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/opencv/f_image_retrival_search.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4920">
-              <caret line="338" column="118" selection-start-line="336" selection-start-column="8" selection-end-line="338" selection-end-column="118" />
+            <state relative-caret-position="975">
+              <caret line="67" column="40" selection-start-line="67" selection-start-column="40" selection-end-line="67" selection-end-column="40" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cloning7.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="e_processing_images.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/opencv/e_processing_images.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2160">
+              <caret line="148" column="85" selection-start-line="148" selection-start-column="4" selection-end-line="148" selection-end-column="85" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="a_basic_operations_on_images.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/opencv/a_basic_operations_on_images.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="360">
+              <caret line="25" column="52" selection-start-line="25" selection-start-column="52" selection-end-line="25" selection-end-column="52" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cloning7.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cloningDetection/cloning7.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
-              <caret line="158" lean-forward="true" selection-start-line="158" selection-end-line="158" />
+            <state relative-caret-position="2145">
+              <caret line="155" column="47" selection-start-line="155" selection-start-column="47" selection-end-line="155" selection-end-column="47" />
               <folding>
                 <element signature="e#143#159#0" expanded="true" />
-                <element signature="e#488#669#0" />
-                <element signature="e#690#853#0" />
-                <element signature="e#874#1043#0" />
-                <element signature="e#1139#1467#0" />
-                <element signature="e#2231#2695#0" />
-                <element signature="e#3801#4670#0" />
-                <element signature="e#22261#22421#0" />
               </folding>
             </state>
           </provider>
@@ -118,8 +130,8 @@
       <file leaf-file-name="slic.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cloningDetection/slic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="555">
-              <caret line="45" selection-start-line="45" selection-end-line="45" />
+            <state relative-caret-position="255">
+              <caret line="25" column="35" selection-start-line="25" selection-start-column="35" selection-end-line="25" selection-end-column="35" />
               <folding>
                 <element signature="e#32#69#0" expanded="true" />
               </folding>
@@ -138,8 +150,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.nc</find>
-      <find>range</find>
       <find>io</find>
       <find>color</find>
       <find>trange</find>
@@ -158,13 +168,18 @@
       <find>where</find>
       <find>imread</find>
       <find>pixel</find>
-      <find>.pt</find>
       <find>3218</find>
       <find>total segements</find>
       <find>clusterKeypoints</find>
       <find>[*</find>
       <find>total count :</find>
       <find>segments without enough keypoints -</find>
+      <find>close</find>
+      <find>image.shap</find>
+      <find>condition</find>
+      <find>pt</find>
+      <find>.pt</find>
+      <find>x for x in</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -180,7 +195,6 @@
         <option value="$PROJECT_DIR$/python/c_functions.py" />
         <option value="$PROJECT_DIR$/python/a_basic.py" />
         <option value="$PROJECT_DIR$/python/d_modules.py" />
-        <option value="$PROJECT_DIR$/opencv/a_basic_operations_on_images.py" />
         <option value="$PROJECT_DIR$/opencv/b_arithmetic_operations_on_images.py" />
         <option value="$PROJECT_DIR$/opencv/d_geometric_transformations.py" />
         <option value="$PROJECT_DIR$/opencv/kmeans.py" />
@@ -202,13 +216,14 @@
         <option value="$PROJECT_DIR$/cloningDetection/cloning5.py" />
         <option value="$PROJECT_DIR$/cloningDetection/cloning3.py" />
         <option value="$PROJECT_DIR$/cloningDetection/socket_server.py" />
-        <option value="$PROJECT_DIR$/cloningDetection/sift_keypoints.py" />
         <option value="$PROJECT_DIR$/opencv/e_processing_images.py" />
         <option value="$PROJECT_DIR$/cloningDetection/testing.py" />
         <option value="$PROJECT_DIR$/cloningDetection/slic.py" />
+        <option value="$PROJECT_DIR$/cloningDetection/cloning7.py" />
+        <option value="$PROJECT_DIR$/opencv/a_basic_operations_on_images.py" />
+        <option value="$PROJECT_DIR$/cloningDetection/sift_keypoints.py" />
         <option value="$PROJECT_DIR$/cloningDetection/cloning6.py" />
         <option value="$PROJECT_DIR$/cloningDetection/cloning8.py" />
-        <option value="$PROJECT_DIR$/cloningDetection/cloning7.py" />
       </list>
     </option>
   </component>
@@ -226,7 +241,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -248,6 +262,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -272,7 +287,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.cloning7">
+  <component name="RunManager" selected="Python.cloning8">
     <configuration name="b_controlFlow" type="PythonConfigurationType" factoryName="Python">
       <module name="OpenCVBasic" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -345,7 +360,7 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="e_processing_images" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="cloning8" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="OpenCVBasic" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -353,11 +368,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/opencv" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cloningDetection" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/opencv/e_processing_images.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cloningDetection/cloning8.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -483,19 +498,19 @@
       <item itemvalue="Python.main" />
       <item itemvalue="Python.b_controlFlow" />
       <item itemvalue="Python.cloning3" />
-      <item itemvalue="Python.sift_keypoints" />
       <item itemvalue="Python.cloning6" />
       <item itemvalue="Python.cloning7" />
-      <item itemvalue="Python.e_processing_images" />
       <item itemvalue="Python.testing" />
+      <item itemvalue="Python.cloning8" />
+      <item itemvalue="Python.sift_keypoints" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.cloning7" />
+        <item itemvalue="Python.cloning8" />
         <item itemvalue="Python.cloning6" />
-        <item itemvalue="Python.testing" />
-        <item itemvalue="Python.e_processing_images" />
         <item itemvalue="Python.sift_keypoints" />
+        <item itemvalue="Python.cloning7" />
+        <item itemvalue="Python.testing" />
       </list>
     </recent_temporary>
   </component>
@@ -531,19 +546,18 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="39" y="25" width="1327" height="743" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20782208" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3287037" />
-      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="10" weight="0.329653" />
-      <window_info anchor="bottom" auto_hide="true" id="Python Console" order="7" weight="0.35962147" />
-      <window_info anchor="bottom" auto_hide="true" x="50" y="285" width="1304" height="222" id="Run" internal_type="SLIDING" order="2" type="SLIDING" weight="0.7665615" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.329653" />
+      <window_info anchor="bottom" auto_hide="true" id="Python Console" order="11" weight="0.36750787" />
+      <window_info anchor="bottom" auto_hide="true" x="50" y="285" width="1304" height="222" id="Run" internal_type="SLIDING" order="2" type="SLIDING" weight="0.36750787" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3280757" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.3280757" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39589906" />
-      <window_info anchor="bottom" id="Thumbnails" order="9" weight="0.32970452" />
+      <window_info anchor="bottom" id="Thumbnails" order="8" weight="0.32970452" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -585,7 +599,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="12" />
+      <option name="time" value="13" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -844,30 +858,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cloningDetection/sift_keypoints.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1275">
-          <caret line="88" column="90" selection-start-line="88" selection-start-column="90" selection-end-line="88" selection-end-column="90" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloningDetection/cloning4.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="795">
-          <caret line="63" column="39" selection-start-line="63" selection-start-column="39" selection-end-line="63" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/opencv/a_basic_operations_on_images.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-270">
-          <caret line="7" column="19" lean-forward="true" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cloningDetection/testing.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4920">
@@ -879,38 +869,27 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1305">
           <caret line="132" column="85" selection-start-line="132" selection-start-column="85" selection-end-line="132" selection-end-column="85" />
-          <folding>
-            <element signature="e#3108#3520#0" />
-            <element signature="e#3627#4150#0" />
-            <element signature="e#4247#5315#0" />
-            <element signature="e#5408#7647#0" />
-            <element signature="e#7755#8300#0" />
-            <element signature="e#8396#9808#0" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/opencv/e_processing_images.py">
+    <entry file="file://$PROJECT_DIR$/opencv/a_basic_operations_on_images.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="478">
-          <caret line="148" column="85" selection-start-line="148" selection-start-column="4" selection-end-line="148" selection-end-column="85" />
+        <state relative-caret-position="360">
+          <caret line="25" column="52" selection-start-line="25" selection-start-column="52" selection-end-line="25" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/opencv/f_image_retrival_search.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
+        <state relative-caret-position="975">
           <caret line="67" column="40" selection-start-line="67" selection-start-column="40" selection-end-line="67" selection-end-column="40" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cloningDetection/slic.py">
+    <entry file="file://$PROJECT_DIR$/opencv/e_processing_images.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="45" selection-start-line="45" selection-end-line="45" />
-          <folding>
-            <element signature="e#32#69#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="2160">
+          <caret line="148" column="85" selection-start-line="148" selection-start-column="4" selection-end-line="148" selection-end-column="85" />
         </state>
       </provider>
     </entry>
@@ -924,36 +903,72 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/cloningDetection/cloning4.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="795">
+          <caret line="63" column="39" selection-start-line="63" selection-start-column="39" selection-end-line="63" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloningDetection/slic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="25" column="35" selection-start-line="25" selection-start-column="35" selection-end-line="25" selection-end-column="35" />
+          <folding>
+            <element signature="e#32#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloningDetection/sift_keypoints.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="735">
+          <caret line="52" selection-start-line="52" selection-end-line="52" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloningDetection/cloning7.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2145">
+          <caret line="155" column="47" selection-start-line="155" selection-start-column="47" selection-end-line="155" selection-end-column="47" />
+          <folding>
+            <element signature="e#143#159#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/cloningDetection/cloning6.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
-          <caret line="549" column="17" lean-forward="true" selection-end-line="581" />
+          <caret line="550" column="117" selection-start-line="550" selection-start-column="20" selection-end-line="550" selection-end-column="117" />
           <folding>
             <element signature="e#172#188#0" expanded="true" />
+            <element signature="e#21325#22188#0" />
+            <element signature="e#22261#22421#0" />
+            <element signature="e#22543#23789#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cloningDetection/cloning8.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4035">
-          <caret line="278" selection-start-line="278" selection-end-line="278" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloningDetection/cloning7.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="158" lean-forward="true" selection-start-line="158" selection-end-line="158" />
+        <state relative-caret-position="55">
+          <caret line="74" column="28" selection-start-line="74" selection-start-column="28" selection-end-line="74" selection-end-column="28" />
           <folding>
-            <element signature="e#143#159#0" expanded="true" />
-            <element signature="e#488#669#0" />
-            <element signature="e#690#853#0" />
-            <element signature="e#874#1043#0" />
-            <element signature="e#1139#1467#0" />
-            <element signature="e#2231#2695#0" />
-            <element signature="e#3801#4670#0" />
-            <element signature="e#22261#22421#0" />
+            <element signature="e#5979#6309#1" />
+            <element signature="e#6927#10122#0" />
+            <element signature="e#8172#8430#1" />
+            <element signature="e#8748#8846#0" />
+            <element signature="e#10210#11672#0" />
+            <element signature="e#10894#11224#1" />
+            <element signature="e#12108#15729#0" />
+            <element signature="e#13171#13429#1" />
+            <element signature="e#13747#13845#0" />
+            <element signature="e#11399#12200#0" />
+            <element signature="e#12293#13937#0" />
           </folding>
         </state>
       </provider>
